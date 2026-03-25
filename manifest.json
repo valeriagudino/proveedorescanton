@@ -1,0 +1,26 @@
+{
+  "name": "Feria China — Proveedores",
+  "short_name": "Feria China",
+  "description": "App de registro de proveedores para ferias en China",
+  "start_url": "/proveedorescanton/",
+  "scope": "/proveedorescanton/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#185FA5",
+  "background_color": "#f0ede6",
+  "lang": "es",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='40' fill='%23185FA5'/><text y='.85em' font-size='140' x='20'>🏭</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%23185FA5'/><text y='.85em' font-size='380' x='50'>🏭</text></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

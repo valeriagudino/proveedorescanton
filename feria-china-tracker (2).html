@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Feria China — Proveedores</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#fff;--bg2:#f7f6f3;--bg3:#f0ede6;
+  --txt:#1a1a18;--txt2:#6b6b66;--txt3:#9a9a94;
+  --brd:rgba(0,0,0,0.09);--brd2:rgba(0,0,0,0.16);
+  --rad:10px;--radlg:14px;
+  --blue:#185FA5;--bluebg:#E6F1FB;--bluetxt:#0C447C;
+  --amber:#BA7517;--amberbg:#FAEEDA;--ambertxt:#854F0B;
+  --redbg:#FCEBEB;--redtxt:#A32D2D;--redbrd:#F09595;
+  --greenbg:#EAF3DE;--greentxt:#3B6D11;--greenbrd:#97C459;
+  --teal:#0F6E56;--tealbg:#E1F5EE;
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#1c1c1a;--bg2:#252522;--bg3:#2e2e2a;
+  --txt:#e8e6df;--txt2:#9a9a94;--txt3:#6b6b66;
+  --brd:rgba(255,255,255,0.08);--brd2:rgba(255,255,255,0.15);
+  --blue:#378ADD;--bluebg:#042C53;--bluetxt:#85B7EB;
+  --amber:#EF9F27;--amberbg:#412402;--ambertxt:#FAC775;
+  --redbg:#501313;--redtxt:#F09595;--redbrd:#791F1F;
+  --greenbg:#173404;--greentxt:#C0DD97;--greenbrd:#3B6D11;
+  --teal:#5DCAA5;--tealbg:#04342C;
+}}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg3);color:var(--txt);min-height:100vh;}
+
+/* TOPBAR */
+.topbar{background:var(--bg);border-bottom:0.5px solid var(--brd2);padding:0 1rem;display:flex;align-items:center;justify-content:space-between;height:54px;position:sticky;top:0;z-index:50;gap:8px;}
+.logo{font-size:14px;font-weight:700;letter-spacing:-0.02em;display:flex;align-items:center;gap:8px;white-space:nowrap;}
+.logo-dot{width:8px;height:8px;border-radius:50%;background:var(--blue);flex-shrink:0;}
+.badge{background:var(--blue);color:#E6F1FB;font-size:11px;padding:3px 9px;border-radius:20px;font-weight:600;}
+.topbar-right{display:flex;gap:6px;align-items:center;}
+.btnsm{padding:6px 11px;border:0.5px solid var(--brd2);border-radius:var(--rad);font-size:12px;cursor:pointer;background:var(--bg);color:var(--txt);font-family:inherit;white-space:nowrap;}
+.btnsm:hover{background:var(--bg2);}
+.btn-sync{background:var(--tealbg);color:var(--teal);border-color:var(--greenbrd);}
+.btn-sync:hover{background:var(--greenbg);}
+.btn-sync.syncing{opacity:.6;pointer-events:none;}
+
+/* SYNC STATUS BAR */
+.sync-bar{display:none;padding:7px 1rem;font-size:12px;align-items:center;gap:8px;border-bottom:0.5px solid var(--brd);}
+.sync-bar.pending{display:flex;background:var(--amberbg);color:var(--ambertxt);}
+.sync-bar.ok{display:flex;background:var(--greenbg);color:var(--greentxt);}
+.sync-bar.err{display:flex;background:var(--redbg);color:var(--redtxt);}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex-shrink:0;}
+
+/* TABS */
+.tabs{background:var(--bg);border-bottom:0.5px solid var(--brd2);padding:0 1rem;display:flex;overflow-x:auto;}
+.tab{padding:11px 16px;font-size:13px;cursor:pointer;border:none;background:none;color:var(--txt2);border-bottom:2px solid transparent;margin-bottom:-0.5px;font-family:inherit;white-space:nowrap;}
+.tab.act{color:var(--txt);border-bottom:2px solid var(--blue);font-weight:600;}
+
+.main{max-width:960px;margin:0 auto;padding:1.25rem 1rem;}
+.sec{display:none;}.sec.act{display:block;}
+
+/* SETUP BANNER */
+.setup-banner{background:var(--amberbg);border:0.5px solid var(--amber);border-radius:var(--radlg);padding:1rem 1.25rem;margin-bottom:1.25rem;}
+.setup-banner h3{font-size:14px;font-weight:700;color:var(--ambertxt);margin-bottom:8px;}
+.setup-banner p{font-size:13px;color:var(--ambertxt);line-height:1.6;margin-bottom:10px;}
+.setup-input{width:100%;padding:9px 11px;border:0.5px solid var(--amber);border-radius:var(--rad);font-size:13px;background:var(--bg);color:var(--txt);font-family:inherit;margin-bottom:8px;}
+.setup-input:focus{outline:none;border-color:var(--blue);}
+.btn-setup{padding:8px 18px;background:var(--ambertxt);color:#fff;border:none;border-radius:var(--rad);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;}
+
+/* INFO BANNER */
+.help{background:var(--bluebg);border-left:3px solid var(--blue);border-radius:0 var(--rad) var(--rad) 0;padding:9px 13px;font-size:13px;color:var(--bluetxt);margin-bottom:1.25rem;line-height:1.5;}
+
+/* FORM */
+.fcard{background:var(--bg);border:0.5px solid var(--brd);border-radius:var(--radlg);padding:1.25rem;}
+.fsec{font-size:11px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:0.06em;margin:1.4rem 0 .7rem;padding-bottom:5px;border-bottom:0.5px solid var(--brd);}
+.fsec:first-child{margin-top:0;}
+.fsec-toggle{display:flex;align-items:center;justify-content:space-between;font-size:11px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:0.06em;margin:1.4rem 0 0;padding:9px 12px;border:0.5px solid var(--brd);border-radius:var(--rad);cursor:pointer;background:var(--bg2);user-select:none;}
+.fsec-toggle .arr{font-size:9px;transition:transform .2s;color:var(--txt2);}
+.fsec-toggle.open .arr{transform:rotate(180deg);}
+.fsec-body{overflow:hidden;max-height:0;transition:max-height .3s ease;}
+.fsec-body.open{max-height:700px;margin-top:12px;}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(max-width:560px){.fg{grid-template-columns:1fr;}}
+.fi{display:flex;flex-direction:column;gap:4px;}
+.fi.full{grid-column:1/-1;}
+.fi label{font-size:11px;color:var(--txt2);font-weight:600;letter-spacing:.05em;text-transform:uppercase;}
+.fi input,.fi select,.fi textarea{padding:9px 11px;border:0.5px solid var(--brd2);border-radius:var(--rad);font-size:14px;background:var(--bg);color:var(--txt);font-family:inherit;transition:border-color .15s;}
+.fi input:focus,.fi select:focus,.fi textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(24,95,165,.08);}
+.fi textarea{resize:vertical;min-height:74px;}
+.fi input.err{border-color:var(--redbrd);}
+
+/* USER SELECTOR */
+.user-sel{display:flex;gap:8px;margin-bottom:1rem;}
+.ubtn{flex:1;padding:9px;border:0.5px solid var(--brd2);border-radius:var(--rad);font-size:13px;cursor:pointer;background:var(--bg);color:var(--txt2);font-family:inherit;transition:all .12s;text-align:center;}
+.ubtn.act{background:var(--bluebg);color:var(--bluetxt);border-color:var(--blue);font-weight:600;}
+
+/* STARS */
+.stars{display:flex;gap:4px;padding:3px 0;}
+.star{font-size:28px;cursor:pointer;color:var(--bg3);line-height:1;transition:color .1s,transform .1s;user-select:none;}
+.star.on{color:var(--amber);}
+.star:hover{transform:scale(1.2);}
+
+/* PRIORITY */
+.pbts{display:flex;gap:8px;flex-wrap:wrap;}
+.pbt{padding:7px 14px;border-radius:20px;border:0.5px solid var(--brd2);font-size:13px;cursor:pointer;background:var(--bg);color:var(--txt2);font-family:inherit;transition:all .12s;}
+.pbt.pa{background:var(--redbg);color:var(--redtxt);border-color:var(--redbrd);font-weight:600;}
+.pbt.pm{background:var(--amberbg);color:var(--ambertxt);border-color:var(--amber);font-weight:600;}
+.pbt.pb{background:var(--greenbg);color:var(--greentxt);border-color:var(--greenbrd);font-weight:600;}
+
+/* PHOTO */
+.photo-area{border:1.5px dashed var(--brd2);border-radius:var(--rad);padding:1.1rem;text-align:center;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:5px;transition:border-color .15s,background .15s;}
+.photo-area:hover{border-color:var(--blue);background:var(--bluebg);}
+.photo-area p{font-size:13px;color:var(--txt2);}
+.prev-grid{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px;}
+.pthumb{position:relative;width:72px;height:72px;border-radius:8px;overflow:hidden;border:0.5px solid var(--brd);}
+.pthumb img{width:100%;height:100%;object-fit:cover;}
+.pdel{position:absolute;top:2px;right:2px;background:rgba(0,0,0,.65);color:#fff;border:none;border-radius:50%;width:19px;height:19px;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+
+.btnsave{width:100%;padding:12px;background:var(--txt);color:var(--bg);border:none;border-radius:var(--rad);font-size:15px;font-weight:700;cursor:pointer;margin-top:16px;font-family:inherit;transition:opacity .15s;}
+.btnsave:hover{opacity:.82;}
+
+/* PENDING BADGE */
+.pending-badge{display:inline-flex;align-items:center;gap:5px;background:var(--amberbg);color:var(--ambertxt);font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;margin-left:8px;}
+
+/* FILTERS */
+.filters{display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;}
+.fis{padding:7px 10px;border:0.5px solid var(--brd2);border-radius:var(--rad);font-size:13px;background:var(--bg);color:var(--txt);font-family:inherit;}
+.si{flex:1;min-width:150px;}
+
+/* CARDS */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:11px;}
+.scard{background:var(--bg);border:0.5px solid var(--brd);border-radius:var(--radlg);cursor:pointer;overflow:hidden;transition:border-color .15s,transform .1s;}
+.scard:hover{border-color:var(--brd2);transform:translateY(-2px);}
+.scard-ph{width:100%;height:120px;object-fit:cover;display:block;}
+.scard-noph{width:100%;height:64px;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:28px;color:var(--txt3);}
+.scard-body{padding:.85rem .95rem;}
+.sctop{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:7px;}
+.scname{font-size:14px;font-weight:600;line-height:1.3;}
+.scsub{font-size:11px;color:var(--txt2);margin-top:2px;}
+.scstars{font-size:13px;color:var(--amber);letter-spacing:-1px;flex-shrink:0;margin-left:6px;}
+.scrow{font-size:12px;color:var(--txt2);margin-top:4px;}
+.scrow span{color:var(--txt);}
+.scfoot{display:flex;align-items:center;gap:6px;margin-top:8px;flex-wrap:wrap;}
+.pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.02em;}
+.papill{background:var(--redbg);color:var(--redtxt);}
+.pmpill{background:var(--amberbg);color:var(--ambertxt);}
+.pbpill{background:var(--greenbg);color:var(--greentxt);}
+.p0pill{background:var(--bg3);color:var(--txt2);}
+.user-tag{font-size:10px;color:var(--txt3);background:var(--bg3);padding:2px 7px;border-radius:20px;}
+.sync-tag{font-size:10px;color:var(--ambertxt);background:var(--amberbg);padding:2px 7px;border-radius:20px;}
+.empty{text-align:center;padding:4rem 1rem;color:var(--txt2);font-size:14px;grid-column:1/-1;line-height:1.7;}
+
+/* TABLE */
+.tw{overflow-x:auto;background:var(--bg);border:0.5px solid var(--brd);border-radius:var(--radlg);}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+th{text-align:left;padding:9px 11px;font-size:10px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.05em;border-bottom:0.5px solid var(--brd2);white-space:nowrap;background:var(--bg2);}
+td{padding:9px 11px;border-bottom:0.5px solid var(--brd);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tbody tr:hover td{background:var(--bg2);cursor:pointer;}
+.tdthumb{width:32px;height:32px;border-radius:5px;object-fit:cover;}
+.tdtxt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+/* DASHBOARD */
+.srow{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:1.25rem;}
+@media(max-width:580px){.srow{grid-template-columns:1fr 1fr;}}
+.sc{background:var(--bg);border:0.5px solid var(--brd);border-radius:var(--rad);padding:.9rem 1rem;}
+.sclbl{font-size:10px;color:var(--txt2);margin-bottom:3px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;}
+.scnum{font-size:26px;font-weight:700;letter-spacing:-.02em;}
+.drow{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:11px;}
+@media(max-width:620px){.drow{grid-template-columns:1fr;}}
+.dcard{background:var(--bg);border:0.5px solid var(--brd);border-radius:var(--radlg);padding:1.1rem;}
+.dtitle{font-size:10px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px;}
+.brow{margin-bottom:9px;}
+.blbl{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;}
+.btrack{background:var(--bg3);border-radius:4px;height:6px;overflow:hidden;}
+.bfill{height:100%;border-radius:4px;}
+.trow{display:flex;align-items:center;gap:11px;padding:9px 0;border-bottom:0.5px solid var(--brd);cursor:pointer;}
+.trow:last-child{border-bottom:none;}
+.trow:hover .tname{color:var(--blue);}
+.trank{font-size:15px;font-weight:700;color:var(--txt3);min-width:20px;}
+.tthumb{width:34px;height:34px;border-radius:6px;object-fit:cover;background:var(--bg3);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;}
+.tinfo{flex:1;min-width:0;}
+.tname{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tsub{font-size:11px;color:var(--txt2);margin-top:1px;}
+
+/* MODAL */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.48);display:flex;align-items:center;justify-content:center;z-index:100;padding:1rem;}
+.modal{background:var(--bg);border-radius:var(--radlg);border:0.5px solid var(--brd2);width:100%;max-width:480px;max-height:88vh;overflow-y:auto;}
+.modph{width:100%;height:200px;object-fit:cover;border-radius:var(--radlg) var(--radlg) 0 0;display:block;}
+.modphs{display:flex;gap:5px;padding:8px 1.25rem 0;flex-wrap:wrap;}
+.modphs img{width:54px;height:54px;object-fit:cover;border-radius:6px;border:0.5px solid var(--brd);cursor:pointer;}
+.modinner{padding:1.1rem 1.25rem 1.4rem;}
+.mh{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.9rem;gap:12px;}
+.mh h2{font-size:17px;font-weight:700;line-height:1.3;}
+.mcl{background:none;border:none;font-size:21px;cursor:pointer;color:var(--txt2);padding:0;line-height:1;flex-shrink:0;}
+.mr{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:0.5px solid var(--brd);font-size:13px;gap:14px;}
+.mr:last-of-type{border-bottom:none;}
+.ml{color:var(--txt2);white-space:nowrap;font-size:12px;}
+.mv{text-align:right;font-weight:500;word-break:break-word;}
+.notasblk{margin-top:12px;padding:11px;background:var(--bg2);border-radius:var(--rad);}
+.notaslbl{font-size:10px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;}
+.notastxt{font-size:13px;color:var(--txt2);line-height:1.7;}
+.macts{display:flex;gap:8px;margin-top:1.1rem;}
+.bd{flex:1;padding:9px;border:0.5px solid var(--redbrd);color:var(--redtxt);background:none;border-radius:var(--rad);cursor:pointer;font-size:13px;font-family:inherit;font-weight:500;}
+.bd:hover{background:var(--redbg);}
+.bc{flex:2;padding:9px;background:var(--txt);color:var(--bg);border:none;border-radius:var(--rad);cursor:pointer;font-size:13px;font-family:inherit;font-weight:700;}
+.bc:hover{opacity:.85;}
+
+/* LIGHTBOX */
+.lb{position:fixed;inset:0;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;z-index:200;}
+.lb img{max-width:90vw;max-height:90vh;border-radius:var(--rad);}
+
+/* SETTINGS */
+.settings-card{background:var(--bg);border:0.5px solid var(--brd);border-radius:var(--radlg);padding:1.25rem;margin-bottom:12px;}
+.settings-card h3{font-size:13px;font-weight:700;margin-bottom:12px;color:var(--txt);}
+.setting-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:0.5px solid var(--brd);gap:12px;}
+.setting-row:last-child{border-bottom:none;}
+.setting-label{font-size:13px;color:var(--txt);}
+.setting-sub{font-size:11px;color:var(--txt2);margin-top:2px;}
+.setting-val{font-size:13px;color:var(--txt2);text-align:right;}
+.btn-danger{padding:8px 14px;background:var(--redbg);color:var(--redtxt);border:0.5px solid var(--redbrd);border-radius:var(--rad);font-size:13px;cursor:pointer;font-family:inherit;font-weight:500;}
+
+/* TOAST */
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--txt);color:var(--bg);padding:10px 20px;border-radius:20px;font-size:13px;z-index:200;opacity:0;transition:opacity .25s;pointer-events:none;font-weight:600;white-space:nowrap;}
+.toast.show{opacity:1;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-dot"></div>
+    <span>Feria China</span>
+    <span class="badge" id="tbadge">0</span>
+  </div>
+  <div class="topbar-right">
+    <button class="btnsm btn-sync" id="btn-sync" onclick="syncNow()" title="Sincronizar con Google Sheets">⇅ Sync</button>
+    <button class="btnsm" onclick="exportCSV()">↓ CSV</button>
+  </div>
+</div>
+
+<div class="sync-bar" id="sync-bar">
+  <div class="sync-dot"></div>
+  <span id="sync-msg"></span>
+</div>
+
+<div class="tabs">
+  <button class="tab act" onclick="sw('cap',this)">＋ Nuevo</button>
+  <button class="tab" onclick="sw('cards',this)">Tarjetas</button>
+  <button class="tab" onclick="sw('tbl',this)">Tabla</button>
+  <button class="tab" onclick="sw('dash',this)">Resumen</button>
+  <button class="tab" onclick="sw('cfg',this)">⚙ Config</button>
+</div>
+
+<div class="main">
+
+  <!-- ══ NUEVO PROVEEDOR ══ -->
+  <div id="s-cap" class="sec act">
+    <div class="help">Solo el nombre es obligatorio. Todo se guarda localmente — sin internet. Sincronizá cuando tengas conexión.</div>
+
+    <div class="fi" style="margin-bottom:1rem;">
+      <label>¿Quién registra?</label>
+      <div class="user-sel">
+        <button class="ubtn act" id="u1btn" onclick="setUser(1)">👤 Viajero 1</button>
+        <button class="ubtn" id="u2btn" onclick="setUser(2)">👤 Viajero 2</button>
+      </div>
+    </div>
+
+    <div class="fcard">
+      <div class="fsec">Identificación</div>
+      <div class="fg">
+        <div class="fi full"><label>Nombre de la fábrica / empresa *</label>
+          <input id="fn" placeholder="Ej: Guangdong Precision Parts Co." style="font-size:16px;padding:11px 13px;">
+        </div>
+        <div class="fi"><label>Stand / Hall</label><input id="fst" placeholder="Ej: Hall 3 — A012"></div>
+        <div class="fi"><label>Tipo de fabricación</label>
+          <select id="fr"><option value="">Seleccionar...</option>
+            <option>Metalmecánica / CNC</option><option>Plásticos / Inyección</option>
+            <option>Electrónica / PCB</option><option>Textil / Confección</option>
+            <option>Madera / Muebles</option><option>Packaging / Embalaje</option>
+            <option>Química / Pinturas</option><option>Caucho / Sellados</option><option>Otro</option>
+          </select>
+        </div>
+        <div class="fi"><label>Producto principal</label><input id="fprod" placeholder="Ej: Piezas de aluminio"></div>
+        <div class="fi"><label>Contacto</label><input id="fc" placeholder="Ej: Li Wei — Sales Mgr"></div>
+        <div class="fi"><label>WeChat / WhatsApp</label><input id="fcon" placeholder="Ej: li_wei_88"></div>
+      </div>
+
+      <!-- Condiciones comerciales — desplegable -->
+      <div class="fsec-toggle" id="tog-com" onclick="togSec('com')">
+        <span>Condiciones comerciales</span><span class="arr">▼</span>
+      </div>
+      <div class="fsec-body" id="bod-com">
+        <div class="fg">
+          <div class="fi"><label>Precio unitario</label><input id="fp" placeholder="Ej: $2.50 / pieza"></div>
+          <div class="fi"><label>MOQ</label><input id="fmoq" placeholder="Ej: 500 unidades"></div>
+          <div class="fi"><label>Tiempo de producción</label><input id="ffe" placeholder="Ej: 25-30 días"></div>
+          <div class="fi"><label>Logística</label><input id="flog" placeholder="Ej: 15 días marítimo"></div>
+          <div class="fi"><label>Certificaciones</label><input id="fcert" placeholder="Ej: ISO 9001, CE"></div>
+          <div class="fi"><label>Términos de pago</label><input id="fpago" placeholder="Ej: 30% anticipo"></div>
+        </div>
+      </div>
+
+      <!-- Evaluación -->
+      <div class="fsec" style="margin-top:1.4rem;">Evaluación</div>
+      <div class="fg">
+        <div class="fi"><label>Calificación ★</label>
+          <div class="stars" id="strs">
+            <span class="star" data-v="1">★</span><span class="star" data-v="2">★</span>
+            <span class="star" data-v="3">★</span><span class="star" data-v="4">★</span>
+            <span class="star" data-v="5">★</span>
+          </div>
+        </div>
+        <div class="fi"><label>Prioridad</label>
+          <div class="pbts">
+            <button class="pbt" onclick="setPri(this,'Alta','pa')">🔴 Alta</button>
+            <button class="pbt" onclick="setPri(this,'Media','pm')">🟡 Media</button>
+            <button class="pbt" onclick="setPri(this,'Baja','pb')">🟢 Baja</button>
+          </div>
+        </div>
+        <div class="fi full"><label>Notas personales</label>
+          <textarea id="fno" placeholder="Impresiones, muestras, puntos a negociar..."></textarea>
+        </div>
+      </div>
+
+      <!-- Fotos -->
+      <div class="fsec">Fotos</div>
+      <input type="file" id="photo-input" accept="image/*" multiple style="display:none" onchange="handlePhotos(event)">
+      <div class="photo-area" onclick="document.getElementById('photo-input').click()">
+        <div style="font-size:30px">📸</div>
+        <p>Tocar para agregar fotos</p>
+        <p style="font-size:11px;color:var(--txt3)">Stand · Producto · Muestras · Catálogo</p>
+      </div>
+      <div class="prev-grid" id="prev-grid"></div>
+
+      <button class="btnsave" onclick="saveSup()">Guardar proveedor</button>
+    </div>
+  </div>
+
+  <!-- ══ TARJETAS ══ -->
+  <div id="s-cards" class="sec">
+    <div class="filters">
+      <input class="fis si" id="qc" placeholder="🔍  Buscar..." oninput="rCards()">
+      <select class="fis" id="rc" onchange="rCards()"><option value="">Todos los tipos</option>
+        <option>Metalmecánica / CNC</option><option>Plásticos / Inyección</option>
+        <option>Electrónica / PCB</option><option>Textil / Confección</option>
+        <option>Madera / Muebles</option><option>Packaging / Embalaje</option>
+        <option>Química / Pinturas</option><option>Caucho / Sellados</option><option>Otro</option>
+      </select>
+      <select class="fis" id="pc" onchange="rCards()"><option value="">Toda prioridad</option>
+        <option>Alta</option><option>Media</option><option>Baja</option></select>
+      <select class="fis" id="uc" onchange="rCards()"><option value="">Ambos viajeros</option>
+        <option value="1">Solo Viajero 1</option><option value="2">Solo Viajero 2</option></select>
+      <select class="fis" id="sc2" onchange="rCards()">
+        <option value="fecha">Más recientes</option><option value="stars">Mayor rating</option>
+        <option value="prioridad">Por prioridad</option><option value="nombre">A → Z</option>
+      </select>
+    </div>
+    <div class="grid" id="cgrid"></div>
+  </div>
+
+  <!-- ══ TABLA ══ -->
+  <div id="s-tbl" class="sec">
+    <div class="filters">
+      <input class="fis si" id="qt" placeholder="🔍  Buscar..." oninput="rTable()">
+      <select class="fis" id="rt" onchange="rTable()"><option value="">Todos los tipos</option>
+        <option>Metalmecánica / CNC</option><option>Plásticos / Inyección</option>
+        <option>Electrónica / PCB</option><option>Textil / Confección</option>
+        <option>Madera / Muebles</option><option>Packaging / Embalaje</option>
+        <option>Química / Pinturas</option><option>Caucho / Sellados</option><option>Otro</option>
+      </select>
+      <select class="fis" id="sort-t" onchange="rTable()">
+        <option value="stars">Mayor rating</option><option value="prioridad">Por prioridad</option>
+        <option value="nombre">A → Z</option>
+      </select>
+    </div>
+    <div class="tw">
+      <table>
+        <thead><tr><th>#</th><th></th><th>Fábrica</th><th>Tipo</th><th>Producto</th>
+          <th>Precio</th><th>MOQ</th><th>Producción</th><th>Cert.</th><th>★</th><th>Prior.</th><th>Viajero</th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══ RESUMEN ══ -->
+  <div id="s-dash" class="sec">
+    <div class="srow">
+      <div class="sc"><div class="sclbl">Total</div><div class="scnum" id="d-tot">0</div></div>
+      <div class="sc"><div class="sclbl">Alta prior.</div><div class="scnum" id="d-alta" style="color:var(--redtxt)">0</div></div>
+      <div class="sc"><div class="sclbl">Rating prom.</div><div class="scnum" id="d-rat" style="color:var(--amber)">—</div></div>
+      <div class="sc"><div class="sclbl">Sin sincronizar</div><div class="scnum" id="d-pend" style="color:var(--ambertxt)">0</div></div>
+    </div>
+    <div class="drow">
+      <div id="d-bars" class="dcard"></div>
+      <div id="d-viajeros" class="dcard"></div>
+    </div>
+    <div id="d-top"></div>
+  </div>
+
+  <!-- ══ CONFIG ══ -->
+  <div id="s-cfg" class="sec">
+    <div class="settings-card">
+      <h3>Nombres de los viajeros</h3>
+      <div class="setting-row">
+        <div><div class="setting-label">Viajero 1</div></div>
+        <input class="fis" id="cfg-u1" placeholder="Nombre..." style="width:160px;" oninput="saveNames()">
+      </div>
+      <div class="setting-row">
+        <div><div class="setting-label">Viajero 2</div></div>
+        <input class="fis" id="cfg-u2" placeholder="Nombre..." style="width:160px;" oninput="saveNames()">
+      </div>
+    </div>
+
+    <div class="settings-card">
+      <h3>Sincronización con Google Sheets</h3>
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">URL del Apps Script</div>
+          <div class="setting-sub">Pegá acá la URL de tu webapp de Apps Script</div>
+        </div>
+      </div>
+      <input class="fis" id="cfg-url" placeholder="https://script.google.com/macros/s/.../exec"
+        style="width:100%;margin-top:8px;" oninput="saveConfig()">
+      <div style="margin-top:10px;font-size:12px;color:var(--txt2);line-height:1.6;">
+        Para obtener la URL: abrí Google Sheets → Extensiones → Apps Script → pegá el código del servidor → Implementar → Nueva implementación → Aplicación web → Ejecutar como "Yo" → Acceso "Cualquier persona" → Implementar → copiar URL.
+      </div>
+    </div>
+
+    <div class="settings-card">
+      <h3>Estado de sincronización</h3>
+      <div class="setting-row">
+        <div><div class="setting-label">Registros pendientes</div></div>
+        <div class="setting-val" id="cfg-pend">—</div>
+      </div>
+      <div class="setting-row">
+        <div><div class="setting-label">Última sincronización</div></div>
+        <div class="setting-val" id="cfg-lastsync">Nunca</div>
+      </div>
+      <div class="setting-row">
+        <div><div class="setting-label">Total registros locales</div></div>
+        <div class="setting-val" id="cfg-total">—</div>
+      </div>
+      <button class="btnsm btn-sync" style="width:100%;margin-top:12px;padding:10px;" onclick="syncNow()">⇅ Sincronizar ahora</button>
+    </div>
+
+    <div class="settings-card">
+      <h3>Datos locales</h3>
+      <div class="setting-row">
+        <div><div class="setting-label">Exportar todos los datos</div>
+          <div class="setting-sub">Descarga el CSV completo como respaldo</div></div>
+        <button class="btnsm" onclick="exportCSV()">↓ CSV</button>
+      </div>
+      <div class="setting-row">
+        <div><div class="setting-label" style="color:var(--redtxt)">Borrar todos los datos</div>
+          <div class="setting-sub">Elimina todos los proveedores locales</div></div>
+        <button class="btn-danger" onclick="clearAll()">Borrar todo</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<!-- MODAL -->
+<div id="mov" style="display:none" class="ov">
+  <div class="modal">
+    <div id="mod-pharea"></div>
+    <div class="modinner">
+      <div class="mh"><h2 id="mt"></h2><button class="mcl" onclick="closeMod()">✕</button></div>
+      <div id="mb"></div>
+      <div class="macts"><button class="bd" id="mdel">Eliminar</button><button class="bc" onclick="closeMod()">Cerrar</button></div>
+    </div>
+  </div>
+</div>
+
+<div id="lb" style="display:none" class="lb" onclick="this.style.display='none'">
+  <img id="lb-img" src="" alt="">
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Estado ────────────────────────────────────────────────────────────────
+var S=[];
+var CFG={url:'',u1:'Viajero 1',u2:'Viajero 2',lastSync:null};
+try{S=JSON.parse(localStorage.getItem('fc_v4')||'[]');}catch(e){}
+try{var c=JSON.parse(localStorage.getItem('fc_cfg')||'{}');Object.assign(CFG,c);}catch(e){}
+var cSt=0,cPr='',cPh=[],cUser=1;
+
+// ── Persistencia ──────────────────────────────────────────────────────────
+function sv(){
+  try{localStorage.setItem('fc_v4',JSON.stringify(S));}
+  catch(e){toast('⚠ Almacenamiento lleno. Exportá el CSV.');}
+  updUI();
+}
+function svCfg(){localStorage.setItem('fc_cfg',JSON.stringify(CFG));}
+
+function updUI(){
+  document.getElementById('tbadge').textContent=S.length;
+  var pend=S.filter(function(s){return!s.synced;}).length;
+  document.getElementById('d-pend').textContent=pend;
+  document.getElementById('cfg-pend').textContent=pend+' pendientes';
+  document.getElementById('cfg-total').textContent=S.length+' registros';
+  document.getElementById('cfg-lastsync').textContent=CFG.lastSync?new Date(CFG.lastSync).toLocaleString('es'):'Nunca';
+  // sync bar
+  var bar=document.getElementById('sync-bar');
+  if(pend>0){
+    bar.className='sync-bar pending';
+    document.getElementById('sync-msg').textContent=pend+' proveedor'+(pend>1?'es':'')+ ' sin sincronizar con Google Sheets';
+  } else if(S.length>0){
+    bar.className='sync-bar ok';
+    document.getElementById('sync-msg').textContent='Todo sincronizado ✓';
+  } else {
+    bar.className='sync-bar';
+  }
+  // update user buttons with names
+  document.getElementById('u1btn').textContent='👤 '+CFG.u1;
+  document.getElementById('u2btn').textContent='👤 '+CFG.u2;
+  document.getElementById('cfg-u1').value=CFG.u1;
+  document.getElementById('cfg-u2').value=CFG.u2;
+  document.getElementById('cfg-url').value=CFG.url||'';
+}
+
+// ── Configuración ─────────────────────────────────────────────────────────
+function saveNames(){
+  CFG.u1=document.getElementById('cfg-u1').value||'Viajero 1';
+  CFG.u2=document.getElementById('cfg-u2').value||'Viajero 2';
+  svCfg();updUI();
+}
+function saveConfig(){
+  CFG.url=document.getElementById('cfg-url').value.trim();
+  svCfg();
+}
+
+// ── Nav ───────────────────────────────────────────────────────────────────
+function sw(n,b){
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('act');});b.classList.add('act');
+  document.querySelectorAll('.sec').forEach(function(s){s.classList.remove('act');});
+  document.getElementById('s-'+n).classList.add('act');
+  if(n==='cards')rCards();if(n==='tbl')rTable();if(n==='dash')rDash();
+}
+
+// ── Form helpers ──────────────────────────────────────────────────────────
+function setUser(n){
+  cUser=n;
+  document.getElementById('u1btn').classList.toggle('act',n===1);
+  document.getElementById('u2btn').classList.toggle('act',n===2);
+}
+function togSec(id){
+  var t=document.getElementById('tog-'+id),b=document.getElementById('bod-'+id);
+  var o=b.classList.contains('open');
+  b.classList.toggle('open',!o);t.classList.toggle('open',!o);
+}
+document.querySelectorAll('.star').forEach(function(s){
+  s.addEventListener('click',function(){
+    cSt=parseInt(s.dataset.v);
+    document.querySelectorAll('.star').forEach(function(t,i){t.classList.toggle('on',i<cSt);});
+  });
+});
+function setPri(b,v,c){cPr=v;document.querySelectorAll('.pbt').forEach(function(x){x.className='pbt';});b.classList.add(c);}
+
+function handlePhotos(e){
+  Array.from(e.target.files).forEach(function(f){
+    var r=new FileReader();
+    r.onload=function(ev){
+      // Compress to max 800px wide to save localStorage space
+      var img=new Image();
+      img.onload=function(){
+        var canvas=document.createElement('canvas');
+        var max=800;
+        var ratio=Math.min(max/img.width,max/img.height,1);
+        canvas.width=Math.round(img.width*ratio);
+        canvas.height=Math.round(img.height*ratio);
+        canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
+        var compressed=canvas.toDataURL('image/jpeg',0.7);
+        cPh.push(compressed);var idx=cPh.length-1;
+        var w=document.createElement('div');w.className='pthumb';
+        w.innerHTML='<img src="'+compressed+'"><button class="pdel" onclick="rmPh('+idx+',this.parentNode)">✕</button>';
+        document.getElementById('prev-grid').appendChild(w);
+      };
+      img.src=ev.target.result;
+    };r.readAsDataURL(f);
+  });
+}
+function rmPh(i,el){cPh[i]=null;el.remove();}
+
+// ── Guardar proveedor ─────────────────────────────────────────────────────
+function saveSup(){
+  var n=document.getElementById('fn').value.trim();
+  if(!n){
+    var inp=document.getElementById('fn');
+    inp.classList.add('err');inp.focus();
+    setTimeout(function(){inp.classList.remove('err');},2000);
+    toast('⚠ Ingresá el nombre de la fábrica');return;
+  }
+  S.unshift({
+    id:Date.now(),
+    usuario:cUser,
+    usuarioNombre:cUser===1?CFG.u1:CFG.u2,
+    nombre:n,
+    stand:document.getElementById('fst').value.trim(),
+    rubro:document.getElementById('fr').value,
+    producto:document.getElementById('fprod').value.trim(),
+    contacto:document.getElementById('fc').value.trim(),
+    contactoInfo:document.getElementById('fcon').value.trim(),
+    precio:document.getElementById('fp').value.trim(),
+    moq:document.getElementById('fmoq').value.trim(),
+    produccion:document.getElementById('ffe').value.trim(),
+    logistica:document.getElementById('flog').value.trim(),
+    cert:document.getElementById('fcert').value.trim(),
+    pago:document.getElementById('fpago').value.trim(),
+    stars:cSt,prioridad:cPr,
+    notas:document.getElementById('fno').value.trim(),
+    photos:cPh.filter(Boolean),
+    fecha:new Date().toISOString(),
+    synced:false
+  });
+  sv();
+  ['fn','fst','fprod','fc','fcon','fp','fmoq','ffe','flog','fcert','fpago','fno'].forEach(function(id){document.getElementById(id).value='';});
+  document.getElementById('fr').value='';
+  cSt=0;cPr='';cPh=[];
+  document.querySelectorAll('.star').forEach(function(s){s.classList.remove('on');});
+  document.querySelectorAll('.pbt').forEach(function(b){b.className='pbt';});
+  document.getElementById('prev-grid').innerHTML='';
+  document.getElementById('photo-input').value='';
+  document.getElementById('bod-com').classList.remove('open');
+  document.getElementById('tog-com').classList.remove('open');
+  document.getElementById('fn').scrollIntoView({behavior:'smooth',block:'center'});
+  toast('✓ Guardado localmente');
+}
+
+// ── SINCRONIZACIÓN ────────────────────────────────────────────────────────
+function syncNow(){
+  var url=CFG.url;
+  if(!url){toast('⚠ Configurá primero la URL del Apps Script en ⚙ Config');return;}
+  var pending=S.filter(function(s){return!s.synced;});
+  if(!pending.length){toast('Todo ya está sincronizado ✓');return;}
+
+  var btn=document.getElementById('btn-sync');
+  btn.classList.add('syncing');btn.textContent='⇅ Sincronizando...';
+
+  // Send without photos first (Sheets only); photos go separately
+  var dataToSend=pending.map(function(s){
+    return {
+      id:s.id,usuario:s.usuarioNombre,nombre:s.nombre,stand:s.stand,
+      rubro:s.rubro,producto:s.producto,contacto:s.contacto,
+      contactoInfo:s.contactoInfo,precio:s.precio,moq:s.moq,
+      produccion:s.produccion,logistica:s.logistica,cert:s.cert,
+      pago:s.pago,stars:s.stars,prioridad:s.prioridad,notas:s.notas,
+      fecha:s.fecha,photoCount:(s.photos?s.photos.length:0)
+    };
+  });
+
+  fetch(url,{
+    method:'POST',
+    mode:'no-cors',
+    headers:{'Content-Type':'text/plain'},
+    body:JSON.stringify({action:'saveRows',rows:dataToSend})
+  })
+  .then(function(){
+    // Mark as synced (no-cors means we can't read response, assume ok)
+    var ids=pending.map(function(s){return s.id;});
+    S.forEach(function(s){if(ids.indexOf(s.id)>=0)s.synced=true;});
+    CFG.lastSync=new Date().toISOString();
+    sv();svCfg();
+    btn.classList.remove('syncing');btn.textContent='⇅ Sync';
+    toast('✓ '+pending.length+' proveedor'+(pending.length>1?'es':'')+' sincronizados');
+  })
+  .catch(function(err){
+    btn.classList.remove('syncing');btn.textContent='⇅ Sync';
+    toast('⚠ Error de conexión. Intentá de nuevo.');
+  });
+}
+
+// ── Helpers render ────────────────────────────────────────────────────────
+function stStr(n){return '<span style="color:var(--amber)">'+'★'.repeat(n)+'</span><span style="color:var(--bg3)">'+'☆'.repeat(5-n)+'</span>';}
+function stPl(n){return '★'.repeat(n)+'☆'.repeat(5-n);}
+function pill(p){if(!p)return '<span class="pill p0pill">—</span>';return '<span class="pill '+({Alta:'papill',Media:'pmpill',Baja:'pbpill'}[p]||'p0pill')+'">'+p+'</span>';}
+function priOrd(p){return p==='Alta'?0:p==='Media'?1:p==='Baja'?2:3;}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function userName(u){return u===1?CFG.u1:u===2?CFG.u2:('Viajero '+u);}
+
+function filt(qi,ri,pi,ui){
+  var q=document.getElementById(qi)?document.getElementById(qi).value.toLowerCase():'';
+  var r=document.getElementById(ri)?document.getElementById(ri).value:'';
+  var p=pi&&document.getElementById(pi)?document.getElementById(pi).value:'';
+  var u=ui&&document.getElementById(ui)?document.getElementById(ui).value:'';
+  return S.filter(function(s){
+    return(!q||s.nombre.toLowerCase().includes(q)||(s.stand||'').toLowerCase().includes(q)||(s.producto||'').toLowerCase().includes(q))
+      &&(!r||s.rubro===r)&&(!p||s.prioridad===p)&&(!u||String(s.usuario)===u);
+  });
+}
+
+// ── Cards ─────────────────────────────────────────────────────────────────
+function rCards(){
+  var sort=document.getElementById('sc2').value;
+  var data=filt('qc','rc','pc','uc').slice();
+  if(sort==='stars')data.sort(function(a,b){return b.stars-a.stars;});
+  else if(sort==='nombre')data.sort(function(a,b){return a.nombre.localeCompare(b.nombre);});
+  else if(sort==='prioridad')data.sort(function(a,b){return priOrd(a.prioridad)-priOrd(b.prioridad);});
+  var c=document.getElementById('cgrid');
+  if(!data.length){
+    c.innerHTML='<div class="empty"><div style="font-size:42px;margin-bottom:10px">🏭</div>'+(S.length?'Ningún proveedor coincide.':'Aún no hay proveedores.<br>Registrá el primero en "+ Nuevo".')+'</div>';
+    return;
+  }
+  c.innerHTML=data.map(function(s){
+    var ph=s.photos&&s.photos[0];
+    return '<div class="scard" onclick="openMod('+s.id+')">'
+      +(ph?'<img class="scard-ph" src="'+ph+'" loading="lazy">':'<div class="scard-noph">🏭</div>')
+      +'<div class="scard-body"><div class="sctop"><div><div class="scname">'+esc(s.nombre)+'</div>'
+      +'<div class="scsub">'+esc(s.stand||'Sin stand')+'</div></div>'
+      +'<div class="scstars">'+stStr(s.stars)+'</div></div>'
+      +'<div class="scrow">Tipo: <span>'+esc(s.rubro||'—')+'</span></div>'
+      +'<div class="scrow">Producto: <span>'+esc(s.producto||'—')+'</span></div>'
+      +'<div class="scrow">Precio: <span>'+esc(s.precio||'—')+'</span></div>'
+      +'<div class="scfoot">'+pill(s.prioridad)
+      +'<span class="user-tag">'+esc(userName(s.usuario))+'</span>'
+      +(!s.synced?'<span class="sync-tag">pendiente</span>':'')
+      +(s.photos&&s.photos.length>1?'<span style="font-size:10px;color:var(--txt3)">📸'+s.photos.length+'</span>':'')
+      +'</div></div></div>';
+  }).join('');
+}
+
+// ── Table ─────────────────────────────────────────────────────────────────
+function rTable(){
+  var sort=document.getElementById('sort-t').value;
+  var data=filt('qt','rt',null,null).slice();
+  if(sort==='stars')data.sort(function(a,b){return b.stars-a.stars;});
+  else if(sort==='nombre')data.sort(function(a,b){return a.nombre.localeCompare(b.nombre);});
+  else if(sort==='prioridad')data.sort(function(a,b){return priOrd(a.prioridad)-priOrd(b.prioridad);});
+  var tb=document.getElementById('tbody');
+  if(!data.length){tb.innerHTML='<tr><td colspan="12" style="text-align:center;padding:2rem;color:var(--txt2)">Sin proveedores</td></tr>';return;}
+  tb.innerHTML=data.map(function(s,i){
+    var ph=s.photos&&s.photos[0]?'<img class="tdthumb" src="'+s.photos[0]+'">':'<span style="font-size:18px">🏭</span>';
+    return '<tr onclick="openMod('+s.id+')">'
+      +'<td style="color:var(--txt2);font-size:11px">'+(i+1)+'</td><td>'+ph+'</td>'
+      +'<td style="font-weight:600"><div class="tdtxt" style="max-width:140px">'+esc(s.nombre)+'</div></td>'
+      +'<td><div class="tdtxt" style="max-width:110px">'+esc(s.rubro||'—')+'</div></td>'
+      +'<td><div class="tdtxt" style="max-width:120px">'+esc(s.producto||'—')+'</div></td>'
+      +'<td>'+esc(s.precio||'—')+'</td><td>'+esc(s.moq||'—')+'</td>'
+      +'<td>'+esc(s.produccion||'—')+'</td>'
+      +'<td><div class="tdtxt" style="max-width:100px">'+esc(s.cert||'—')+'</div></td>'
+      +'<td>'+stStr(s.stars)+'</td><td>'+pill(s.prioridad)+'</td>'
+      +'<td style="color:var(--txt2);font-size:11px">'+esc(userName(s.usuario))+'</td></tr>';
+  }).join('');
+}
+
+// ── Dashboard ─────────────────────────────────────────────────────────────
+function rDash(){
+  document.getElementById('d-tot').textContent=S.length;
+  document.getElementById('d-alta').textContent=S.filter(function(s){return s.prioridad==='Alta';}).length;
+  var ws=S.filter(function(s){return s.stars>0;});
+  document.getElementById('d-rat').textContent=ws.length?(ws.reduce(function(a,b){return a+b.stars;},0)/ws.length).toFixed(1):'—';
+
+  var rubros={};S.forEach(function(s){var r=s.rubro||'Sin tipo';rubros[r]=(rubros[r]||0)+1;});
+  var sR=Object.entries(rubros).sort(function(a,b){return b[1]-a[1];});var maxR=sR[0]?sR[0][1]:1;
+  var cols=['#185FA5','#1D9E75','#BA7517','#D85A30','#D4537E','#639922','#533AB7','#378ADD'];
+  document.getElementById('d-bars').innerHTML='<div class="dtitle">Por tipo de fabricación</div>'
+    +(sR.length?sR.map(function(e,i){return '<div class="brow"><div class="blbl"><span>'+e[0]+'</span><span style="color:var(--txt2);font-size:11px">'+e[1]+'</span></div><div class="btrack"><div class="bfill" style="width:'+Math.round(e[1]/maxR*100)+'%;background:'+cols[i%cols.length]+'"></div></div></div>';}).join(''):'<span style="color:var(--txt2);font-size:12px">Sin datos</span>');
+
+  var v1=S.filter(function(s){return s.usuario===1;}).length;
+  var v2=S.filter(function(s){return s.usuario===2;}).length;
+  var tot=S.length||1;
+  document.getElementById('d-viajeros').innerHTML='<div class="dtitle">Por viajero</div>'
+    +'<div class="brow"><div class="blbl"><span>'+esc(CFG.u1)+'</span><span style="color:var(--txt2);font-size:11px">'+v1+'</span></div><div class="btrack"><div class="bfill" style="width:'+Math.round(v1/tot*100)+'%;background:#185FA5"></div></div></div>'
+    +'<div class="brow"><div class="blbl"><span>'+esc(CFG.u2)+'</span><span style="color:var(--txt2);font-size:11px">'+v2+'</span></div><div class="btrack"><div class="bfill" style="width:'+Math.round(v2/tot*100)+'%;background:#1D9E75"></div></div></div>';
+
+  var top=S.filter(function(s){return s.stars>0;}).sort(function(a,b){return b.stars-a.stars;}).slice(0,6);
+  document.getElementById('d-top').innerHTML=top.length
+    ?'<div class="dcard"><div class="dtitle">Top fábricas por rating</div>'
+      +top.map(function(s,i){
+        var ph=s.photos&&s.photos[0]?'<img class="tthumb" src="'+s.photos[0]+'">':'<div class="tthumb">🏭</div>';
+        return '<div class="trow" onclick="openMod('+s.id+')">'
+          +'<span class="trank">'+(i+1)+'</span>'+ph
+          +'<div class="tinfo"><div class="tname">'+esc(s.nombre)+'</div>'
+          +'<div class="tsub">'+(s.rubro||'—')+' · '+esc(s.stand||'Sin stand')+' · '+esc(userName(s.usuario))+'</div></div>'
+          +'<div>'+stStr(s.stars)+'</div>'+pill(s.prioridad)+'</div>';
+      }).join('')+'</div>'
+    :'';
+}
+
+// ── Modal ─────────────────────────────────────────────────────────────────
+function openMod(id){
+  var s=S.find(function(x){return x.id===id;});if(!s)return;
+  document.getElementById('mt').textContent=s.nombre;
+  var phArea='';
+  if(s.photos&&s.photos.length===1)phArea='<img class="modph" src="'+s.photos[0]+'" onclick="openLB(\''+s.photos[0]+'\')">';
+  else if(s.photos&&s.photos.length>1)phArea='<img class="modph" src="'+s.photos[0]+'" onclick="openLB(\''+s.photos[0]+'\')">'
+    +'<div class="modphs">'+s.photos.slice(1).map(function(p){return '<img src="'+p+'" onclick="openLB(\''+p+'\')">';}).join('')+'</div>';
+  document.getElementById('mod-pharea').innerHTML=phArea;
+  function r(l,v){if(!v)return'';return '<div class="mr"><span class="ml">'+l+'</span><span class="mv">'+esc(v)+'</span></div>';}
+  document.getElementById('mb').innerHTML=
+    r('Viajero',userName(s.usuario))+r('Stand',s.stand)
+    +r('Tipo',s.rubro)+r('Producto',s.producto)
+    +r('Contacto',s.contacto)+r('WeChat/WA',s.contactoInfo)
+    +r('Precio',s.precio)+r('MOQ',s.moq)
+    +r('Producción',s.produccion)+r('Logística',s.logistica)
+    +r('Certificaciones',s.cert)+r('Pago',s.pago)
+    +'<div class="mr"><span class="ml">Rating</span><span class="mv">'+stStr(s.stars)+'</span></div>'
+    +'<div class="mr"><span class="ml">Prioridad</span><span class="mv">'+pill(s.prioridad)+'</span></div>'
+    +'<div class="mr"><span class="ml">Sync</span><span class="mv">'+(s.synced?'<span style="color:var(--teal)">✓ Sincronizado</span>':'<span style="color:var(--ambertxt)">Pendiente</span>')+'</span></div>'
+    +(s.notas?'<div class="notasblk"><div class="notaslbl">Notas</div><div class="notastxt">'+esc(s.notas).replace(/\n/g,'<br>')+'</div></div>':'');
+  document.getElementById('mdel').onclick=function(){delSup(id);};
+  document.getElementById('mov').style.display='flex';
+}
+function closeMod(){document.getElementById('mov').style.display='none';}
+function openLB(src){document.getElementById('lb-img').src=src;document.getElementById('lb').style.display='flex';}
+document.getElementById('mov').addEventListener('click',function(e){if(e.target===this)closeMod();});
+
+function delSup(id){
+  if(!confirm('¿Eliminar este proveedor?'))return;
+  S=S.filter(function(s){return s.id!==id;});
+  sv();closeMod();rCards();rTable();toast('Eliminado');
+}
+
+// ── CSV export ────────────────────────────────────────────────────────────
+function exportCSV(){
+  if(!S.length){alert('No hay proveedores');return;}
+  var cols=['Viajero','Nombre','Stand','Tipo','Producto','Contacto','WeChat/WA','Precio','MOQ','Producción','Logística','Certificaciones','Pago','Rating','Prioridad','N°Fotos','Notas','Fecha','Sincronizado'];
+  var rows=S.map(function(s){
+    return[userName(s.usuario),s.nombre,s.stand,s.rubro,s.producto,s.contacto,s.contactoInfo,
+           s.precio,s.moq,s.produccion,s.logistica,s.cert,s.pago,stPl(s.stars),s.prioridad,
+           (s.photos?s.photos.length:0)+'',s.notas,s.fecha,s.synced?'Sí':'No']
+      .map(function(v){return'"'+(v||'').replace(/"/g,'""')+'"';}).join(',');
+  });
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob(['\uFEFF'+cols.join(',')+'\n'+rows.join('\n')],{type:'text/csv;charset=utf-8'}));
+  a.download='proveedores-feria-china.csv';a.click();
+  toast('CSV exportado ↓');
+}
+
+function clearAll(){
+  if(!confirm('¿Borrar TODOS los proveedores locales? Esta acción no se puede deshacer.'))return;
+  S=[];sv();rCards();toast('Datos borrados');
+}
+
+function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2800);}
+
+// ── Init ──────────────────────────────────────────────────────────────────
+updUI();
+</script>
+</body>
+</html>

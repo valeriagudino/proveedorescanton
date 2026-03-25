@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Feria China — Proveedores</title>
+<meta name="description" content="App de registro de proveedores para ferias en China">
+<meta name="theme-color" content="#185FA5">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Feria China">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23185FA5'/><text y='.9em' font-size='80' x='10'>🏭</text></svg>">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 :root{
@@ -253,7 +260,7 @@ tbody tr:hover td{background:var(--bg2);cursor:pointer;}
 
   <!-- ══ NUEVO PROVEEDOR ══ -->
   <div id="s-cap" class="sec act">
-    <div class="help">Solo el nombre es obligatorio. Todo se guarda localmente — sin internet. Sincroniza cuando tengas conexión.</div>
+    <div class="help">Solo el nombre es obligatorio. Todo se guarda localmente — sin internet. Sincronizá cuando tengas conexión.</div>
 
     <div class="fi" style="margin-bottom:1rem;">
       <label>¿Quién registra?</label>
@@ -270,12 +277,12 @@ tbody tr:hover td{background:var(--bg2);cursor:pointer;}
           <input id="fn" placeholder="Ej: Guangdong Precision Parts Co." style="font-size:16px;padding:11px 13px;">
         </div>
         <div class="fi"><label>Stand / Hall</label><input id="fst" placeholder="Ej: Hall 3 — A012"></div>
-        <div class="fi"><label>Tipo de Producto/Fabricación</label>
+        <div class="fi"><label>Tipo de fabricación</label>
           <select id="fr"><option value="">Seleccionar...</option>
-            <option>Máquinas de Fabricación</option><option>Plásticos</option>
-            <option>Electrónica</option><option>Textil / Confección</option>
-            <option>Materia Prima</option><option>Packaging / Embalaje</option>
-            <option>Químicos</option><option>Comestibles</option><option>Otro</option>
+            <option>Metalmecánica / CNC</option><option>Plásticos / Inyección</option>
+            <option>Electrónica / PCB</option><option>Textil / Confección</option>
+            <option>Madera / Muebles</option><option>Packaging / Embalaje</option>
+            <option>Química / Pinturas</option><option>Caucho / Sellados</option><option>Otro</option>
           </select>
         </div>
         <div class="fi"><label>Producto principal</label><input id="fprod" placeholder="Ej: Piezas de aluminio"></div>
@@ -338,12 +345,13 @@ tbody tr:hover td{background:var(--bg2);cursor:pointer;}
   <div id="s-cards" class="sec">
     <div class="filters">
       <input class="fis si" id="qc" placeholder="🔍  Buscar..." oninput="rCards()">
-      <select class="fis" id="rc" onchange="rCards()"><option value="">Todos los tipos</option>
-        <option>Metalmecánica / CNC</option><option>Plásticos / Inyección</option>
-        <option>Electrónica / PCB</option><option>Textil / Confección</option>
-        <option>Madera / Muebles</option><option>Packaging / Embalaje</option>
-        <option>Química / Pinturas</option><option>Caucho / Sellados</option><option>Otro</option>
-      </select>
+      select id="fr"><option value="">Seleccionar...</option>
+            </select>  
+            <option>Máquinas de Fabricación</option><option>Plásticos</option>
+            <option>Electrónica</option><option>Textil / Confección</option>
+            <option>Materia Prima</option><option>Packaging / Embalaje</option>
+            <option>Químicos</option><option>Comestibles</option><option>Otro</option>
+          </select>
       <select class="fis" id="pc" onchange="rCards()"><option value="">Toda prioridad</option>
         <option>Alta</option><option>Media</option><option>Baja</option></select>
       <select class="fis" id="uc" onchange="rCards()"><option value="">Ambos viajeros</option>
@@ -479,7 +487,7 @@ tbody tr:hover td{background:var(--bg2);cursor:pointer;}
 <script>
 // ── Estado ────────────────────────────────────────────────────────────────
 var S=[];
-var CFG={url:'',u1:'Viajero 1',u2:'Viajero 2',lastSync:null};
+var CFG={url:'https://script.google.com/macros/s/AKfycbwuSTJWUBtunSgTSB78zPmMgOA2O-59uer0onLpyb1-ydljQyCAX5Es5VEp-K3rjxdS/exec',u1:'Cristian',u2:'Annie',lastSync:null};
 try{S=JSON.parse(localStorage.getItem('fc_v4')||'[]');}catch(e){}
 try{var c=JSON.parse(localStorage.getItem('fc_cfg')||'{}');Object.assign(CFG,c);}catch(e){}
 var cSt=0,cPr='',cPh=[],cUser=1;
@@ -835,6 +843,13 @@ function toast(m){var t=document.getElementById('toast');t.textContent=m;t.class
 
 // ── Init ──────────────────────────────────────────────────────────────────
 updUI();
+
+// ── PWA: registrar Service Worker ─────────────────────────────────────────
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js')
+    .then(function(){ console.log('SW registrado'); })
+    .catch(function(e){ console.log('SW error:', e); });
+}
 </script>
 </body>
 </html>

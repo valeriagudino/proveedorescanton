@@ -265,8 +265,9 @@ tbody tr:hover td{background:var(--bg2);cursor:pointer;}
     <div class="fi" style="margin-bottom:1rem;">
       <label>¿Quién registra?</label>
       <div class="user-sel">
-        <button class="ubtn act" id="u1btn" onclick="setUser(1)">👤 Viajero 1</button>
-        <button class="ubtn" id="u2btn" onclick="setUser(2)">👤 Viajero 2</button>
+        <button class="ubtn act" id="u1btn" onclick="setUser(1)">👤 Cristian</button>
+        <button class="ubtn" id="u2btn" onclick="setUser(2)">👤 Annie</button>
+        <button class="ubtn" id="u3btn" onclick="setUser(3)">👤 Valeria</button>
       </div>
     </div>
 
@@ -345,17 +346,16 @@ tbody tr:hover td{background:var(--bg2);cursor:pointer;}
   <div id="s-cards" class="sec">
     <div class="filters">
       <input class="fis si" id="qc" placeholder="🔍  Buscar..." oninput="rCards()">
-      select id="fr"><option value="">Seleccionar...</option>
-            </select>  
-            <option>Máquinas de Fabricación</option><option>Plásticos</option>
-            <option>Electrónica</option><option>Textil / Confección</option>
-            <option>Materia Prima</option><option>Packaging / Embalaje</option>
-            <option>Químicos</option><option>Comestibles</option><option>Otro</option>
-          </select>
+      <select class="fis" id="rc" onchange="rCards()"><option value="">Todos los tipos</option>
+        <option>Metalmecánica / CNC</option><option>Plásticos / Inyección</option>
+        <option>Electrónica / PCB</option><option>Textil / Confección</option>
+        <option>Madera / Muebles</option><option>Packaging / Embalaje</option>
+        <option>Química / Pinturas</option><option>Caucho / Sellados</option><option>Otro</option>
+      </select>
       <select class="fis" id="pc" onchange="rCards()"><option value="">Toda prioridad</option>
         <option>Alta</option><option>Media</option><option>Baja</option></select>
-      <select class="fis" id="uc" onchange="rCards()"><option value="">Ambos viajeros</option>
-        <option value="1">Solo Viajero 1</option><option value="2">Solo Viajero 2</option></select>
+      <select class="fis" id="uc" onchange="rCards()"><option value="">Todos los viajeros</option>
+        <option value="1">Solo Cristian</option><option value="2">Solo Annie</option><option value="3">Solo Valeria</option></select>
       <select class="fis" id="sc2" onchange="rCards()">
         <option value="fecha">Más recientes</option><option value="stars">Mayor rating</option>
         <option value="prioridad">Por prioridad</option><option value="nombre">A → Z</option>
@@ -487,7 +487,7 @@ tbody tr:hover td{background:var(--bg2);cursor:pointer;}
 <script>
 // ── Estado ────────────────────────────────────────────────────────────────
 var S=[];
-var CFG={url:'https://script.google.com/macros/s/AKfycbwuSTJWUBtunSgTSB78zPmMgOA2O-59uer0onLpyb1-ydljQyCAX5Es5VEp-K3rjxdS/exec',u1:'Cristian',u2:'Annie',lastSync:null};
+var CFG={url:'https://script.google.com/macros/s/AKfycbwuSTJWUBtunSgTSB78zPmMgOA2O-59uer0onLpyb1-ydljQyCAX5Es5VEp-K3rjxdS/exec',u1:'Cristian',u2:'Annie',u3:'Valeria',lastSync:null};
 try{S=JSON.parse(localStorage.getItem('fc_v4')||'[]');}catch(e){}
 try{var c=JSON.parse(localStorage.getItem('fc_cfg')||'{}');Object.assign(CFG,c);}catch(e){}
 var cSt=0,cPr='',cPh=[],cUser=1;
@@ -521,6 +521,7 @@ function updUI(){
   // update user buttons with names
   document.getElementById('u1btn').textContent='👤 '+CFG.u1;
   document.getElementById('u2btn').textContent='👤 '+CFG.u2;
+  document.getElementById('u3btn').textContent='👤 '+CFG.u3;
   document.getElementById('cfg-u1').value=CFG.u1;
   document.getElementById('cfg-u2').value=CFG.u2;
   document.getElementById('cfg-url').value=CFG.url||'';
@@ -550,6 +551,7 @@ function setUser(n){
   cUser=n;
   document.getElementById('u1btn').classList.toggle('act',n===1);
   document.getElementById('u2btn').classList.toggle('act',n===2);
+  document.getElementById('u3btn').classList.toggle('act',n===3);
 }
 function togSec(id){
   var t=document.getElementById('tog-'+id),b=document.getElementById('bod-'+id);
@@ -601,7 +603,7 @@ function saveSup(){
   S.unshift({
     id:Date.now(),
     usuario:cUser,
-    usuarioNombre:cUser===1?CFG.u1:CFG.u2,
+    usuarioNombre:cUser===1?CFG.u1:cUser===2?CFG.u2:CFG.u3,
     nombre:n,
     stand:document.getElementById('fst').value.trim(),
     rubro:document.getElementById('fr').value,
@@ -634,17 +636,17 @@ function saveSup(){
   toast('✓ Guardado localmente');
 }
 
-// ── SINCRONIZACIÓN ────────────────────────────────────────────────────────
+// ── SINCRONIZACIÓN BIDIRECCIONAL + FOTOS ─────────────────────────────────
 function syncNow(){
   var url=CFG.url;
-  if(!url){toast('⚠ Configurá primero la URL del Apps Script en ⚙ Config');return;}
-  var pending=S.filter(function(s){return!s.synced;});
-  if(!pending.length){toast('Todo ya está sincronizado ✓');return;}
+  if(!url){toast('⚠ URL del Apps Script no configurada');return;}
 
   var btn=document.getElementById('btn-sync');
   btn.classList.add('syncing');btn.textContent='⇅ Sincronizando...';
 
-  // Send without photos first (Sheets only); photos go separately
+  var pending=S.filter(function(s){return!s.synced;});
+
+  // Preparar datos con fotos incluidas
   var dataToSend=pending.map(function(s){
     return {
       id:s.id,usuario:s.usuarioNombre,nombre:s.nombre,stand:s.stand,
@@ -652,29 +654,80 @@ function syncNow(){
       contactoInfo:s.contactoInfo,precio:s.precio,moq:s.moq,
       produccion:s.produccion,logistica:s.logistica,cert:s.cert,
       pago:s.pago,stars:s.stars,prioridad:s.prioridad,notas:s.notas,
-      fecha:s.fecha,photoCount:(s.photos?s.photos.length:0)
+      fecha:s.fecha,
+      photos: s.photos||[]  // fotos en base64
     };
   });
 
-  fetch(url,{
-    method:'POST',
-    mode:'no-cors',
-    headers:{'Content-Type':'text/plain'},
-    body:JSON.stringify({action:'saveRows',rows:dataToSend})
+  // PASO 1: Subir datos pendientes (con fotos)
+  var uploadPromise = pending.length > 0
+    ? fetch(url,{
+        method:'POST',
+        mode:'no-cors',
+        headers:{'Content-Type':'text/plain'},
+        body:JSON.stringify({action:'saveRows',rows:dataToSend})
+      }).then(function(){
+        var ids=pending.map(function(s){return s.id;});
+        S.forEach(function(s){if(ids.indexOf(s.id)>=0)s.synced=true;});
+        CFG.lastSync=new Date().toISOString();
+        sv();svCfg();
+      })
+    : Promise.resolve();
+
+  // PASO 2: Bajar datos del resto de viajeros
+  uploadPromise.then(function(){
+    return fetch(url+'?action=getRows', {mode:'no-cors'});
   })
-  .then(function(){
-    // Mark as synced (no-cors means we can't read response, assume ok)
-    var ids=pending.map(function(s){return s.id;});
-    S.forEach(function(s){if(ids.indexOf(s.id)>=0)s.synced=true;});
-    CFG.lastSync=new Date().toISOString();
-    sv();svCfg();
-    btn.classList.remove('syncing');btn.textContent='⇅ Sync';
-    toast('✓ '+pending.length+' proveedor'+(pending.length>1?'es':'')+' sincronizados');
+  .then(function(response){
+    // no-cors no permite leer la respuesta directamente
+    // Usamos un GET normal con callback
+    return fetch(url+'?action=getRows&cb='+Date.now());
   })
-  .catch(function(err){
-    btn.classList.remove('syncing');btn.textContent='⇅ Sync';
-    toast('⚠ Error de conexión. Intentá de nuevo.');
+  .then(function(response){
+    if(!response.ok) throw new Error('Sin respuesta');
+    return response.json();
+  })
+  .then(function(data){
+    if(data && data.rows && data.rows.length){
+      var added=0;
+      data.rows.forEach(function(row){
+        var existe=S.find(function(s){return String(s.id)===String(row.id);});
+        if(!existe){
+          S.push({
+            id:row.id,
+            usuario:row.usuario==='Cristian'?1:row.usuario==='Annie'?2:row.usuario==='Valeria'?3:0,
+            usuarioNombre:row.usuario,
+            nombre:row.nombre,stand:row.stand,rubro:row.rubro,
+            producto:row.producto,contacto:row.contacto,
+            contactoInfo:row.contactoInfo,precio:row.precio,
+            moq:row.moq,produccion:row.produccion,logistica:row.logistica,
+            cert:row.cert,pago:row.pago,stars:parseInt(row.stars)||0,
+            prioridad:row.prioridad,notas:row.notas,
+            photos:row.photoUrls?row.photoUrls.map(function(u){return u;}): [],
+            fecha:row.fecha,synced:true
+          });
+          added++;
+        }
+      });
+      if(added>0){sv();}
+    }
+    finalizarSync(pending.length, 0);
+  })
+  .catch(function(){
+    // Si el GET falla (no-cors), igual marcamos lo subido como ok
+    finalizarSync(pending.length, 0);
   });
+}
+
+function finalizarSync(subidos, bajados){
+  var btn=document.getElementById('btn-sync');
+  btn.classList.remove('syncing');btn.textContent='⇅ Sync';
+  var msg = '';
+  if(subidos>0) msg += '↑ '+subidos+' subido'+(subidos>1?'s':'');
+  if(bajados>0) msg += (msg?' · ':'')+'↓ '+bajados+' nuevo'+(bajados>1?'s':'');
+  if(!msg) msg = 'Todo sincronizado ✓';
+  toast(msg);
+  rCards();rTable();
 }
 
 // ── Helpers render ────────────────────────────────────────────────────────
@@ -683,7 +736,7 @@ function stPl(n){return '★'.repeat(n)+'☆'.repeat(5-n);}
 function pill(p){if(!p)return '<span class="pill p0pill">—</span>';return '<span class="pill '+({Alta:'papill',Media:'pmpill',Baja:'pbpill'}[p]||'p0pill')+'">'+p+'</span>';}
 function priOrd(p){return p==='Alta'?0:p==='Media'?1:p==='Baja'?2:3;}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-function userName(u){return u===1?CFG.u1:u===2?CFG.u2:('Viajero '+u);}
+function userName(u){return u===1?CFG.u1:u===2?CFG.u2:u===3?CFG.u3:('Viajero '+u);}
 
 function filt(qi,ri,pi,ui){
   var q=document.getElementById(qi)?document.getElementById(qi).value.toLowerCase():'';
@@ -765,10 +818,12 @@ function rDash(){
 
   var v1=S.filter(function(s){return s.usuario===1;}).length;
   var v2=S.filter(function(s){return s.usuario===2;}).length;
+  var v3=S.filter(function(s){return s.usuario===3;}).length;
   var tot=S.length||1;
   document.getElementById('d-viajeros').innerHTML='<div class="dtitle">Por viajero</div>'
     +'<div class="brow"><div class="blbl"><span>'+esc(CFG.u1)+'</span><span style="color:var(--txt2);font-size:11px">'+v1+'</span></div><div class="btrack"><div class="bfill" style="width:'+Math.round(v1/tot*100)+'%;background:#185FA5"></div></div></div>'
-    +'<div class="brow"><div class="blbl"><span>'+esc(CFG.u2)+'</span><span style="color:var(--txt2);font-size:11px">'+v2+'</span></div><div class="btrack"><div class="bfill" style="width:'+Math.round(v2/tot*100)+'%;background:#1D9E75"></div></div></div>';
+    +'<div class="brow"><div class="blbl"><span>'+esc(CFG.u2)+'</span><span style="color:var(--txt2);font-size:11px">'+v2+'</span></div><div class="btrack"><div class="bfill" style="width:'+Math.round(v2/tot*100)+'%;background:#1D9E75"></div></div></div>'
+    +'<div class="brow"><div class="blbl"><span>'+esc(CFG.u3)+'</span><span style="color:var(--txt2);font-size:11px">'+v3+'</span></div><div class="btrack"><div class="bfill" style="width:'+Math.round(v3/tot*100)+'%;background:#BA7517"></div></div></div>';
 
   var top=S.filter(function(s){return s.stars>0;}).sort(function(a,b){return b.stars-a.stars;}).slice(0,6);
   document.getElementById('d-top').innerHTML=top.length
